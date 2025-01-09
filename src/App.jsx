@@ -1,77 +1,20 @@
-import { useState, useEffect } from "react";
+import { useCart } from "./hooks/useCart";
 
 import Header from "./components/Header";
 import Guitar from "./components/Guitar";
 
-import { db } from "./data/db";
-
 function App() {
-  const initialCart = () => {
-    const cart = localStorage.getItem("cart");
-    return cart ? JSON.parse(cart) : [];
-  };
-
-  const [data, setData] = useState([]);
-  const [cart, setCart] = useState(initialCart);
-
-  const MIN_ITEMS = 1;
-  const MAX_ITEMS = 5;
-
-  useEffect(() => {
-    setData(db);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  function handleAddToCart(item) {
-    const itemExists = cart.findIndex((guitar) => guitar.id === item.id);
-
-    if (itemExists >= 0) {
-      if (cart[itemExists].quantity >= MAX_ITEMS) return;
-      const updatedCart = [...cart];
-      updatedCart[itemExists].quantity++;
-      setCart(updatedCart);
-    } else {
-      item.quantity = 1;
-      setCart([...cart, item]);
-    }
-  }
-
-  function removeFromCart(id) {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  }
-
-  function incrementQuantity(id) {
-    const updatedCart = cart.map((item) => {
-      if (item.id === id && item.quantity < MAX_ITEMS) {
-        return {
-          ...item,
-          quantity: item.quantity + 1,
-        };
-      }
-      return item;
-    });
-    setCart(updatedCart);
-  }
-
-  function decrementQuantity(id) {
-    const updatedCart = cart.map((item) => {
-      if (item.id === id && item.quantity > MIN_ITEMS) {
-        return {
-          ...item,
-          quantity: item.quantity - 1,
-        };
-      }
-      return item;
-    });
-    setCart(updatedCart);
-  }
-
-  function clearCart() {
-    setCart([]);
-  }
+  const {
+    data,
+    cart,
+    handleAddToCart,
+    removeFromCart,
+    incrementQuantity,
+    decrementQuantity,
+    clearCart,
+    isEmpty,
+    cartTotal,
+  } = useCart();
 
   return (
     <>
@@ -81,6 +24,8 @@ function App() {
         incrementQuantity={incrementQuantity}
         decrementQuantity={decrementQuantity}
         clearCart={clearCart}
+        isEmpty={isEmpty}
+        cartTotal={cartTotal}
       />
 
       <main className="container-xl mt-5">
